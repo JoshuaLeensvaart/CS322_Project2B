@@ -12,12 +12,11 @@ with open('schema.sql') as db_file:
 cur = connection.cursor()
 
 # add two default entries
-# TODO: You will need to modify this to handle the additional fields
-cur.execute("INSERT INTO destinations (name, photo) VALUES (?, ?)",
-            ('Hawaii', 'honolulu.jpeg')
+cur.execute("INSERT INTO destinations (name, notes,cost) VALUES (?, ?, ?)",
+            ('Hawaii', 'Beach trip', 3500)
             )
-cur.execute("INSERT INTO destinations (name, photo) VALUES (?, ?)",
-            ('Bahamas', 'nassau.jpeg')
+cur.execute("INSERT INTO destinations (name, notes, cost) VALUES (?, ?, ?)",
+            ('Bahamas', 'Cruising', 4200)
             )
 
 # commit changes and close the connection
