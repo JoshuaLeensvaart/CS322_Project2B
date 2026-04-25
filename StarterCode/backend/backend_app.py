@@ -32,10 +32,34 @@ def get_all():
 def create_dest():
     # get info from POST request
     data = request.get_json()  # parses incoming json
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
     dest_name = data[0].get("name")
     notes = data[0].get("notes")
     cost = data[0].get("cost")
-    # TODO: Input validation on all fields prior to database insertion!
+    # LOOP: Implement Whitelist restriction on name and notes
+
+    # 1. Check length
+    if not dest_name or len(dest_name) > 20:
+        return jsonify({"error": "Destination name must be 1-20 characters"}), 400
+
+    for char in dest_name:
+        if (char < 'A' and char>'Z')or (char < 'a' and char>'z')or(char < '0' and char>'9'):
+            return jsonify({"error": f"Invalid character '{char}' in destination name"}), 400
+
+    if not notes or len(notes) > 100:
+        return jsonify({"error": "Destination name must be 1-100 characters"}), 400
+
+    for char in notes:
+        if (char < 'A' and char>'Z')or (char < 'a' and char>'z')or(char < '0' and char>'9'):
+            return jsonify({"error": f"Invalid character '{char}' in notes"}), 400
+    try:
+        cost_val = float(cost)
+        if cost_val < 0 or cost_val >= 100000:
+            return jsonify({"error": "Cost must be a positive number less than 100,000."}), 400
+    except (ValueError, TypeError):
+        return jsonify({"error": "Cost must be a valid numeric format."}), 400
+
 
     # Connect to DB and insert information
     conn = get_db_connection()
