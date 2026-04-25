@@ -33,12 +33,14 @@ def create_dest():
     # get info from POST request
     data = request.get_json()  # parses incoming json
     dest_name = data[0].get("name")
+    notes = data[0].get("notes")
+    cost = data[0].get("cost")
     # TODO: Input validation on all fields prior to database insertion!
 
     # Connect to DB and insert information
     conn = get_db_connection()
-    conn.execute('INSERT INTO destinations (name, photo) VALUES (?, ?)',
-                 (dest_name, "none"))
+    conn.execute('INSERT INTO destinations (name, photo) VALUES (?, ?, ?)',
+                 (dest_name, notes, cost))
     conn.commit()
     conn.close()
     return jsonify({"name": dest_name}), 201  # creates response json, returns HTTP response 201
