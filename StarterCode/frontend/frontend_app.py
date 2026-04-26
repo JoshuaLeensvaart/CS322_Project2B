@@ -1,5 +1,5 @@
 # Front End Full-Stack App
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, flash, url_for
 import requests
 # Note the two libraries:
 #
@@ -24,7 +24,14 @@ def home():
     # send a request to the backend for all the destinations
     # NOTE: the response variable includes the entire HTTP response
     # NOTE: can use print(dest_list.json()) # can use for debugging
-    response = requests.get(backend_url + "/api")
+    try:
+        response = requests.get(backend_url + "/api")
+        dest_list = response.json()
+    except Exception as e:
+        dest_list = []
+        print(f"Backend connection error: {e}")
+
+    return render_template('bucketlist.html', places=dest_list)
 
     # now, pass the data returned from the backend to the template and
     # render it (send it to the client computer as an HTML file)
@@ -39,15 +46,31 @@ def new_destination():
     # process the submitted form on a POST request
     if request.method == "POST":
         # Retrieve data from the form using the 'name' attribute
-        dest_name = request.form.get('dest_name')
-        # TODO: validate the form information before making the backend request
+        name = request.form.get('dest_name')
+        notes = request.form.get('notes')
+        cost = request.form.get('cost')
+        if not name or len(name) > 20 or not notes or len(notes) > 100:
+            flash("Error: Name and Notes must be 1-20 characters.")
+            return redirect(url_for('new_destination'))
 
-        # build json with requested data
-        new_dest = [{
-            "name": dest_name,
-            "photo": "none"
-        }]
-        # send a POST request to the backend to create a new entry
-        response = requests.post(backend_url + "/api/new", json=new_dest)
-        # Give the user a message
-        return f'<h1>Your form was submitted to add {dest_name}. <a href="/home">Continue</a></h1>'
+        try:
+            cost_val = float(cost)
+            if cost_val < 0 or cost_val >= 100000:
+                flash("Error: Cost must be a positive number under 100,000.")
+                return redirect(url_for('new_destination'))
+        except (ValueError, TypeError):
+            flash("Error: Cost must be a valid number.")
+            return redirect(url_for('new_destination'))
+
+        payload = {
+            "name": name,
+            "notes": notes,
+            "cost": cost_val
+        }
+
+        response = requests.post(backend_url + "/api/new", json=payload)
+        if response.status_code == 201:
+            return redirect(url_for('home'))
+        else:
+            flash(f"Backend rejected request: {response.json().get('error')}")
+            return redirect(url_for('new_destination'))
