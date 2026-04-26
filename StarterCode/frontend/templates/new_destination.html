@@ -1,12 +1,40 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <br>
-    <h1>Add A New Destination</h1>
-    <form method="POST">
-        <label for="dest_name">Enter Destination Name:</label>
-        <input type="text" id="dest_name" name="dest_name" required>
-        <button type="submit">Submit</button>
-    </form>
-{% endblock %}
+    <div class="mt-4">
+        <h1>Add A New Destination</h1>
+        <hr>
 
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-danger" role="alert">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST" class="mt-3">
+            <div class="mb-3">
+                <label for="dest_name" class="form-label">Destination Name (Max 20 chars):</label>
+                <input type="text" id="dest_name" name="dest_name" class="form-control" required maxlength="20">
+            </div>
+
+            <div class="mb-3">
+                <label for="notes" class="form-label">Notes/Additional Info (Max 20 chars):</label>
+                <input type="text" id="notes" name="notes" class="form-control" required maxlength="20">
+            </div>
+
+            <div class="mb-3">
+                <label for="cost" class="form-label">Estimated Cost ($):</label>
+                <input type="number" id="cost" name="cost" class="form-control" step="0.01" min="0" max="99999" required>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-success">Submit Destination</button>
+                <a href="/home" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}
