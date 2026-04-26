@@ -8,7 +8,7 @@ backend_app = Flask(__name__)
 
 # function to connect to the database
 def get_db_connection():
-    conn = sqlite3.connect('../backend/database.db')
+    conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -34,9 +34,9 @@ def create_dest():
     data = request.get_json()  # parses incoming json
     if not data:
         return jsonify({"error": "No data provided"}), 400
-    dest_name = data[0].get("name")
-    notes = data[0].get("notes")
-    cost = data[0].get("cost")
+    dest_name = data.get("name")
+    notes = data.get("notes")
+    cost = data.get("cost")
     # LOOP: Implement Whitelist restriction on name and notes
 
     # 1. Check length
@@ -47,8 +47,8 @@ def create_dest():
         if (char < 'A' and char>'Z')or (char < 'a' and char>'z')or(char < '0' and char>'9'):
             return jsonify({"error": f"Invalid character '{char}' in destination name"}), 400
 
-    if not notes or len(notes) > 100:
-        return jsonify({"error": "Destination name must be 1-100 characters"}), 400
+    if not notes or len(notes) > 20:
+        return jsonify({"error": "Description must be 1-20 characters"}), 400
 
     for char in notes:
         if (char < 'A' and char>'Z')or (char < 'a' and char>'z')or(char < '0' and char>'9'):
@@ -63,8 +63,11 @@ def create_dest():
 
     # Connect to DB and insert information
     conn = get_db_connection()
-    conn.execute('INSERT INTO destinations (name, photo) VALUES (?, ?, ?)',
+    conn.execute('INSERT INTO destinations (name, notes, cost) VALUES (?, ?, ?)',
                  (dest_name, notes, cost))
     conn.commit()
     conn.close()
     return jsonify({"name": dest_name}), 201  # creates response json, returns HTTP response 201
+
+if __name__ == "__main__":
+    backend_app.run(port=5001)

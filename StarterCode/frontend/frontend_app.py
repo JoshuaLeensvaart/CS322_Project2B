@@ -49,7 +49,7 @@ def new_destination():
         name = request.form.get('dest_name')
         notes = request.form.get('notes')
         cost = request.form.get('cost')
-        if not name or len(name) > 20 or not notes or len(notes) > 100:
+        if not name or len(name) > 20 or not notes or len(notes) > 20:
             flash("Error: Name and Notes must be 1-20 characters.")
             return redirect(url_for('new_destination'))
 
@@ -74,3 +74,5 @@ def new_destination():
         else:
             flash(f"Backend rejected request: {response.json().get('error')}")
             return redirect(url_for('new_destination'))
+if __name__ == "__main__":
+    frontend_app.run(port=5000)
